@@ -17,4 +17,14 @@ public class BankApiClient :IBankApiClient
             new(Guid.NewGuid(), 500,  "Подарок",    DateTime.UtcNow.AddDays(-15),   "ivanov@test.com")
         });
     }
+
+    public Task<List<BankUserAddRequest>> UsersForAdd()
+    {
+        return Task.FromResult(new List<BankUserAddRequest>
+        {
+            new("ivanov","ivanov@test.com","ivanovPass"),
+            new("petrov","petrov@test.com","petrovPass"),
+            new("unknown","unknown@test.com","unknownPass"),
+        });
+    }
 }

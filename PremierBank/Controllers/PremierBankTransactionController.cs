@@ -71,7 +71,7 @@ namespace PremierBankTesting.Controllers
                     return NotFound();
                 }
                 logger.LogInformation("Попытка записи...");
-                await bankFacadeService.SaveRangeAsync(transactionDTOs, cancellationToken);
+                await bankFacadeService.SaveRangeTransactionsAsync(transactionDTOs, cancellationToken);
                 logger.LogInformation("Данные внесены");
                 return Ok();
             }
@@ -94,11 +94,13 @@ namespace PremierBankTesting.Controllers
         {
             try
             {
-                await bankFacadeService.SetProcessedUpdateAsync(
+                int rows = await bankFacadeService.SetProcessedUpdateAsync(
                     query.Guids,
                     query.IsProcessed,
                     cancellationToken);
-                return Ok();
+                if (rows == 0)
+                    return NotFound();
+                return Ok($"cтрок изменено {rows}");
             }
             catch (BadRequestException ex)
             {
@@ -120,6 +122,23 @@ namespace PremierBankTesting.Controllers
             try
             {
                 var response = await bankFacadeService.GetSumAmountsByMonthForUsersAsync(isProcessed, cancellationToken);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("{ex}", ex);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("getGroupByType")]
+        public async Task<ActionResult<ICollection<TransactionsGroupByTypeResponse>>> GetGroupByTpe(
+            [FromQuery] bool isProcessed = true,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var response = await bankFacadeService.GetGroupByType(isProcessed, cancellationToken);
                 return Ok(response);
             }
             catch (Exception ex)

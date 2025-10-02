@@ -6,5 +6,6 @@ namespace PremierBankTesting.Clients.Bank;
 
 public interface IBankApiClient
 {
-    public Task<List<BankTransactionResponse>> GetRecentTransactionsAsync(CancellationToken cancellationToken);
+    Task<List<BankTransactionResponse>> GetRecentTransactionsAsync(CancellationToken cancellationToken);
+    Task<List<BankUserAddRequest>> UsersForAdd();
 }

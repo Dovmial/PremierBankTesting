@@ -32,7 +32,7 @@ namespace PremierBankTesting.Mapping
                 entity.Timestamp,
                 entity.User.Email);
 
-        public static List<BankTransactionResponse> ToListDto(
+        public static List<BankTransactionResponse> ToListResponses(
             this ICollection<BankTransaction> entities)
             => entities
             .Select(x => x.ToDto())

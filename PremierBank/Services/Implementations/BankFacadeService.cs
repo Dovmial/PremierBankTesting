@@ -22,7 +22,7 @@ namespace PremierBankTesting.Services.Implementations
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="BadRequestException"></exception>
-        public async Task SaveRangeAsync(ICollection<BankTransactionResponse> transactions, CancellationToken cancellationToken)
+        public async Task SaveRangeTransactionsAsync(ICollection<BankTransactionResponse> transactions, CancellationToken cancellationToken)
         {
             //оставляем уникальные
             var uniqEmails = transactions
@@ -56,38 +56,52 @@ namespace PremierBankTesting.Services.Implementations
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="BadRequestException"></exception>
-        public async Task SetProcessedUpdateAsync(ICollection<Guid> guids, bool isProcessed, CancellationToken cancellationToken)
+        public async Task<int> SetProcessedUpdateAsync(ICollection<Guid> guids, bool isProcessed, CancellationToken cancellationToken)
         {
             if(guids is null || guids.Count == 0)
                 throw new BadRequestException("список транзакций пуст");
-            await transactionRepository.SetProcessedUpdateAsync(guids, isProcessed, cancellationToken);
+            return await transactionRepository.SetProcessedUpdateAsync(guids, isProcessed, cancellationToken);
         }
 
         public async Task<ICollection<BankTransactionResponse>> GetTransactionsAsync(bool isProcessed, CancellationToken cancellationToken)
         {
             var transactionEntities = await transactionRepository.GetTransactions(isProcessed, cancellationToken);
-            return transactionEntities.ToListDto();
+            return transactionEntities.ToListResponses();
         }
 
         public async Task<ICollection<UsersTotalAmountsLastMonthResponse>> GetSumAmountsByMonthForUsersAsync(bool isProcessed, CancellationToken cancellationToken)
             => (await transactionRepository
                 .GetSumAmountsByMonthForUsersAsync(isProcessed, cancellationToken))
                 .ToResponse();
+
+
+        public async Task<ICollection<TransactionsGroupByTypeResponse>> GetGroupByType(bool isProcessed, CancellationToken cancellationToken)
+        {
+            var data = await transactionRepository.GetGroupByType(isProcessed, cancellationToken);
+            var result =  data.ToResponse();
+            return result;
+        }
+
         #endregion
 
         #region User
         public async Task CreateUserAsync(BankUserAddRequest request, CancellationToken cancellationToken)
         {
-            var entity = request.ToEntity();
-            entity.HashPassword = hasher.Hash(request.Password);
+            var entity = request.ToEntity(hasher);
             await userRepository.CreateAsync(entity, cancellationToken);
         }
 
-        public async Task<ICollection<BankUserGetResponse>> GetAll(CancellationToken cancellationToken)
+        public async Task<ICollection<BankUserGetResponse>> GetAllAsync(CancellationToken cancellationToken)
         {
-            var entities = await userRepository.GetAll(cancellationToken);
+            var entities = await userRepository.GetAllAsync(cancellationToken);
             var result = entities.Select(x => x.ToDto()).ToList();
             return result;
+        }
+
+        public async Task SaveRangeUsersAsync(ICollection<BankUserAddRequest> usersToAdd, CancellationToken cancellationToken)
+        {
+            var entities = usersToAdd.Select(x => x.ToEntity(hasher)).ToList();
+            await userRepository.CreateRangeAsync(entities, cancellationToken);
         }
 
         #endregion

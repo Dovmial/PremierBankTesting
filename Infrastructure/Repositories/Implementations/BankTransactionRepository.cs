@@ -23,7 +23,7 @@ namespace Infrastructure.Repositories.Implementations
             await dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task SetProcessedUpdateAsync(ICollection<Guid> guids, bool isProcessed, CancellationToken cancellationToken)
+        public async Task<int> SetProcessedUpdateAsync(ICollection<Guid> guids, bool isProcessed, CancellationToken cancellationToken)
          => await dbContext.BankTransactions
             .Where(x => guids.Contains(x.Id))
             .ExecuteUpdateAsync(setters => setters.SetProperty(t 
@@ -42,5 +42,14 @@ namespace Infrastructure.Repositories.Implementations
                     g.Sum(t => t.Amount)))
                 .ToListAsync(cancellationToken);
         }
+        
+        public async Task<ICollection<TransactionsGroupByType>> GetGroupByType(bool isProcessed, CancellationToken cancellationToken)
+            => await dbContext.BankTransactions
+                .AsNoTracking()
+                .Where(t => t.IsProcessed == isProcessed)
+                .Include(t => t.User)
+                .GroupBy(t => t.Comment)
+                .Select(g => new TransactionsGroupByType(g.Key, g.ToList()))
+                .ToListAsync(cancellationToken);
     }
 }

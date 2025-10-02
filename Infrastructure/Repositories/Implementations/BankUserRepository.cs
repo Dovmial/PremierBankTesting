@@ -11,17 +11,23 @@ namespace Infrastructure.Repositories.Implementations
         public async Task CreateAsync(User user, CancellationToken cancellationToken)
         {
             dbContext.Users.Add(user);
-            await dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<ICollection<User>> GetAll(CancellationToken cancellationToken)
+        public async Task CreateRangeAsync(ICollection<User> users, CancellationToken cancellationToken)
+        {
+            await dbContext.AddRangeAsync(users, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task<ICollection<User>> GetAllAsync(CancellationToken cancellationToken)
             => await dbContext.Users
                 .AsNoTracking()
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
         public async Task<ICollection<User>> GetUsersByEmailsAsync(ICollection<string> emails, CancellationToken cancellationToken)
         => await dbContext.Users
                 .Where(u => emails.Contains(u.Email))
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
     }
 }
