@@ -1,4 +1,5 @@
 ﻿
+using Infrastructure.DTOs;
 using PremierBankTesting.DTOs;
 using System.Linq.Expressions;
 
@@ -9,7 +10,8 @@ namespace PremierBankTesting.Services.Interfaces
         #region Transaction
         Task SaveRangeAsync(ICollection<BankTransactionResponse> transactions, CancellationToken cancellationToken);
         Task SetProcessedUpdateAsync(ICollection<Guid> guids, bool isProcessed, CancellationToken cancellationToken);
-        Task<ICollection<BankTransactionResponse>> GetTransactions(bool isProcessed, CancellationToken cancellationToken);
+        Task<ICollection<BankTransactionResponse>> GetTransactionsAsync(bool isProcessed, CancellationToken cancellationToken);
+        Task<ICollection<UsersTotalAmountsLastMonthResponse>> GetSumAmountsByMonthForUsersAsync(bool isProcessed, CancellationToken cancellationToken);
         #endregion
 
         #region User

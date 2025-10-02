@@ -1,4 +1,5 @@
-﻿using Infrastructure.Models.Bank;
+﻿using Infrastructure.DTOs;
+using Infrastructure.Models.Bank;
 
 namespace Infrastructure.Repositories.Interfaces
 {
@@ -8,5 +9,6 @@ namespace Infrastructure.Repositories.Interfaces
         Task SetProcessedUpdateAsync(ICollection<Guid> guids, bool isProcessed, CancellationToken cancellationToken);
 
         Task<ICollection<BankTransaction>> GetTransactions(bool isProcessed, CancellationToken cancellationToken);
+        Task<ICollection<UsersTotalAmountsLastMonth>> GetSumAmountsByMonthForUsersAsync(bool isProcessed, CancellationToken cancellationToken);
     }
 }

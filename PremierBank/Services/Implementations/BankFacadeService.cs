@@ -63,13 +63,16 @@ namespace PremierBankTesting.Services.Implementations
             await transactionRepository.SetProcessedUpdateAsync(guids, isProcessed, cancellationToken);
         }
 
-        public async Task<ICollection<BankTransactionResponse>> GetTransactions(bool isProcessed, CancellationToken cancellationToken)
+        public async Task<ICollection<BankTransactionResponse>> GetTransactionsAsync(bool isProcessed, CancellationToken cancellationToken)
         {
             var transactionEntities = await transactionRepository.GetTransactions(isProcessed, cancellationToken);
             return transactionEntities.ToListDto();
         }
-        
 
+        public async Task<ICollection<UsersTotalAmountsLastMonthResponse>> GetSumAmountsByMonthForUsersAsync(bool isProcessed, CancellationToken cancellationToken)
+            => (await transactionRepository
+                .GetSumAmountsByMonthForUsersAsync(isProcessed, cancellationToken))
+                .ToResponse();
         #endregion
 
         #region User

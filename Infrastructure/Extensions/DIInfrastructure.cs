@@ -36,7 +36,7 @@ namespace Infrastructure.Extensions
                 options.UseNpgsql(connectionString));
         }
 
-        public static async Task<IApplicationBuilder> ApplyMigrations(this IApplicationBuilder app)
+        public static async Task<IApplicationBuilder> ApplyMigrationsAsync(this IApplicationBuilder app)
         {
             await using var scope = app.ApplicationServices.CreateAsyncScope();
             using var dbContex = scope.ServiceProvider.GetRequiredService<NpgDbContext>();

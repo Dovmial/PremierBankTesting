@@ -4,6 +4,7 @@ using PremierBankTesting.Clients.Bank;
 using PremierBankTesting.DTOs;
 using PremierBankTesting.Exceptions;
 using PremierBankTesting.Services.Interfaces;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace PremierBankTesting.Controllers
 {
@@ -47,7 +48,7 @@ namespace PremierBankTesting.Controllers
         {
             try
             {
-                var result = await bankFacadeService.GetTransactions(isProcessed, cancellationToken);
+                var result = await bankFacadeService.GetTransactionsAsync(isProcessed, cancellationToken);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -103,6 +104,23 @@ namespace PremierBankTesting.Controllers
             {
                 logger.LogError("{ex}", ex);
                 return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("{ex}", ex);
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet("lastMonthTotalAmountByUser")]
+        public async Task<ActionResult<ICollection<UsersTotalAmountsLastMonthResponse>>> GetLastMonthTotalAmountByUser(
+            [FromQuery] bool isProcessed = false,
+            CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var response = await bankFacadeService.GetSumAmountsByMonthForUsersAsync(isProcessed, cancellationToken);
+                return Ok(response);
             }
             catch (Exception ex)
             {

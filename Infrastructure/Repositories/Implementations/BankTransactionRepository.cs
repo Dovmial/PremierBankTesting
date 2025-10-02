@@ -1,4 +1,5 @@
 ﻿using Infrastructure.DbContexts;
+using Infrastructure.DTOs;
 using Infrastructure.Models.Bank;
 using Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -27,5 +28,19 @@ namespace Infrastructure.Repositories.Implementations
             .Where(x => guids.Contains(x.Id))
             .ExecuteUpdateAsync(setters => setters.SetProperty(t 
                 => t.IsProcessed, isProcessed), cancellationToken);
+
+        public async Task<ICollection<UsersTotalAmountsLastMonth>> GetSumAmountsByMonthForUsersAsync(bool isProcessed, CancellationToken cancellationToken)
+        {
+            var fromDate = DateTime.UtcNow.AddMonths(-1);
+            return await dbContext.BankTransactions
+                .AsNoTracking()
+                .Where(t => t.IsProcessed == isProcessed && t.Timestamp >= fromDate)
+                .GroupBy(t => new { t.UserId, t.User.Email})
+                .Select(g => new UsersTotalAmountsLastMonth(
+                    g.Key.UserId,
+                    g.Key.Email,
+                    g.Sum(t => t.Amount)))
+                .ToListAsync(cancellationToken);
+        }
     }
 }
